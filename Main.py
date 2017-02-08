@@ -31,8 +31,9 @@ def process(data):
     # start time count
     start_time = time.time()
 
-    a = 0.5
-    iteri = 0
+    a = 0.5         #konstanta proporsional polarisasi
+    iteri = 0       #iterasi
+
     # current question processing
     questFromUser = data
     preQuestFromUser = pre.preprocs(questFromUser)
