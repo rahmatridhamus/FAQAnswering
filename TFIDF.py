@@ -142,7 +142,3 @@ def getTfidfQuestion(quest1, quest2, indexes):
     print(tfidfq1)
     print(tfidfq2)
     return tfidfq1,tfidfq2
-
-# a = [('hello', 'n'), ('want', 'n'), ('ask', 'v'), ('to', 'a'), ('good', 'n')]
-# b = [('good', 'n'), ('morning', 'n')]
-# getTfidfQuestion(a, b, 4)
