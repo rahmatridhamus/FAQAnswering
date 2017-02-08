@@ -2,7 +2,7 @@ import Preprocessing as pre
 import WordnetSimilarity as wn
 import numpy as np
 import TFIDF as tfidf
-
+import time
 
 def bipartite(Q1, Q2):
     temp = []
@@ -28,6 +28,9 @@ def cosineSimilarity(idf1, idf2):
 
 
 def process(data):
+    # start time count
+    start_time = time.time()
+
     a = 0.5
     iteri = 0
     # current question processing
@@ -40,6 +43,11 @@ def process(data):
     # dataset question processing
     questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
     prequestDataset, preAnswerDataset = [], []
+
+    # Generating TFIDF to CSV
+    # tfidf.generateTFIDF()
+
+    # Start Checking
     for i in range(len(answerDataset)):
         # a = pre.preprocs(answerDataset[i])
         q = pre.preprocs(questDataset[i])
@@ -49,6 +57,8 @@ def process(data):
     print('Data set loaded',len(prequestDataset))
 
     similiarity = []
+    # similiarityCosine = []
+    # similiarityBipartite = []
     for item in prequestDataset:
         iteri += 1
         print(iteri,"yang diteliti: ",item)
@@ -64,14 +74,21 @@ def process(data):
         scoreCosine = cosineSimilarity(tfidf1, tfidf2)
 
         overall = a*scoreBipartite+(1-a)*scoreCosine
+        overallCosine = scoreCosine
+        overallBipartite = scoreBipartite
+
         similiarity.append(overall)
-        print(overall)
+        print("Cosine: ",overallCosine)
+        print("Bipartite: ",overallBipartite)
+        print("Overall: ",overall)
+        print()
 
     answer = answerDataset[similiarity.index(max(similiarity))]
     print('------------ Question ------------')
     print(data)
     print('------------ Answer ------------')
-    print(answer)
+    print(answer,". with similarity value: ",max(similiarity))
+    print("--- %s seconds ---" % (time.time() - start_time))
     return answer
 
 process("who are you dude?")
