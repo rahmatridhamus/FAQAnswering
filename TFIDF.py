@@ -141,10 +141,7 @@ def getTfidfQuestion(quest1, quest2, indexes):
     print(allWords)
     print(tfidfq1)
     print(tfidfq2)
-    print(len(corpus))
-    print(len(corpus[1]))
     return tfidfq1,tfidfq2
-    # print(index)
 
 # a = [('hello', 'n'), ('want', 'n'), ('ask', 'v'), ('to', 'a'), ('good', 'n')]
 # b = [('good', 'n'), ('morning', 'n')]
