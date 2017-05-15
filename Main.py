@@ -4,7 +4,6 @@ import numpy as np
 import TFIDF as tfidf
 import time
 
-
 def bipartite(Q1, Q2):
     temp = []
     for item in Q1:
