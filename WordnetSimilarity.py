@@ -4,7 +4,9 @@ from itertools import product
 def findMaxScore(synset1, synset2):
     maxscore = 0
     for i, j in list(product(*[synset1, synset2])):
-        score = i.path_similarity(j)  # Wu-Palmer Similarity
+        score = i.wup_similarity(j)  # Wu-Palmer Similarity               #0.72
+        # score = i.path_similarity(j) # Path Similarity                    #0.685
+
         if score != None:
             maxscore = (score if maxscore < score else maxscore)
     return maxscore
@@ -20,4 +22,5 @@ def similarityBetweenWord(quest1, quest2):
             temp.append(score)
         hasil.append(temp)
         temp = []
+        # print ("hasil, ",hasil)
     return hasil

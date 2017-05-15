@@ -34,7 +34,8 @@ def column(matrix, i):
 
 
 def generateTFIDF():
-    questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
+    questDataset, answerDataset = pre.openFile("Dataset NLP2.xlsx")
+    print (len(questDataset))
     terms = []
     questCorpus = []
     stringKata = ""

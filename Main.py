@@ -4,6 +4,7 @@ import numpy as np
 import TFIDF as tfidf
 import time
 
+
 def bipartite(Q1, Q2):
     temp = []
     for item in Q1:
@@ -31,8 +32,8 @@ def process(data):
     # start time count
     start_time = time.time()
 
-    a = 0.5         #konstanta proporsional polarisasi
-    iteri = 0       #iterasi
+    a = 0.7  # konstanta proporsional polarisasi
+    iteri = 0  # iterasi
 
     # current question processing
     questFromUser = data
@@ -42,7 +43,8 @@ def process(data):
     print(questFromUser, ' : ', preQuestFromUser)
 
     # dataset question processing
-    questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
+    # questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
+    questDataset, answerDataset = pre.openFile("Dataset NLP2.xlsx")
     prequestDataset, preAnswerDataset = [], []
 
     # Generating TFIDF to CSV
@@ -55,14 +57,14 @@ def process(data):
         prequestDataset.append(q)
         # preAnswerDataset.append(a)
 
-    print('Data set loaded',len(prequestDataset))
+    print('Data set loaded', len(prequestDataset))
 
     similiarity = []
     # similiarityCosine = []
     # similiarityBipartite = []
     for item in prequestDataset:
         iteri += 1
-        print(iteri,"yang diteliti: ",item)
+        print(iteri, "yang diteliti: ", item)
 
         # semantic similarity processing, wordnet similarity antar kata -->  bipartite mapping
         Q1 = wn.similarityBetweenWord(preQuestFromUser, item)
@@ -70,26 +72,27 @@ def process(data):
         scoreBipartite = bipartite(Q1, Q2)
 
         # statistic similarity processing, TF-IDF antar kata --> cosine similarity
-        tfidf1, tfidf2 = tfidf.getTfidfQuestion(preQuestFromUser, item,iteri)
+        tfidf1, tfidf2 = tfidf.getTfidfQuestion(preQuestFromUser, item, iteri)
 
         scoreCosine = cosineSimilarity(tfidf1, tfidf2)
 
-        overall = a*scoreBipartite+(1-a)*scoreCosine
+        overall = a * scoreBipartite + (1 - a) * scoreCosine
         overallCosine = scoreCosine
         overallBipartite = scoreBipartite
 
         similiarity.append(overall)
-        print("Cosine: ",overallCosine)
-        print("Bipartite: ",overallBipartite)
-        print("Overall: ",overall)
+        print("Cosine: ", overallCosine)
+        print("Bipartite: ", overallBipartite)
+        print("Overall: ", overall)
         print()
 
     answer = answerDataset[similiarity.index(max(similiarity))]
     print('------------ Question ------------')
     print(data)
     print('------------ Answer ------------')
-    print(answer,". with similarity value: ",max(similiarity))
+    print(answer, ". with similarity value: ", max(similiarity))
     print("--- %s seconds ---" % (time.time() - start_time))
     return answer
 
-process("who are you dude?")
+# masukkan pertanyaan
+process("who are you ?")

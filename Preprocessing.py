@@ -12,6 +12,7 @@ answer =[]
 ps=PorterStemmer()
 stop_words = set(stopwords.words('english'))
 lmtzr = WordNetLemmatizer()
+
 def openFile(namaFile) :
     workbook = xlrd.open_workbook(namaFile)
     sheet = workbook.sheet_by_index(0)
