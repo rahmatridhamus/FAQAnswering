@@ -33,9 +33,39 @@ def column(matrix, i):
     return [row[i] for row in matrix]
 
 
+def generateTF(questDatasetParams):
+    # print(len(questDataset))
+    terms = []
+    questCorpus = []
+    stringKata = ""
+    prequestDataset = []
+    tfVal = []
+    questDataset = []
+    answerDataset = []
+
+    questDataset = questDatasetParams
+    for i in range(len(questDataset)):
+        q = pre.preprocs(questDataset[i])
+        term, tag = zip(*q)
+        prequestDataset.append(term)
+        terms = list(chain(*prequestDataset))
+        stringKata = nltk.re.sub('[%s]' % nltk.re.escape(string.punctuation), '', questDataset[i])
+        questCorpus.append(stringKata.lower())
+
+    # print(questCorpus)
+    # print()
+    # print(terms)
+
+    # for word in terms:
+    #     tfVal.append(word,freq(word,terms))
+    tfVal = [(word, freq(word, terms)) for word in getUniqueWords(terms)]
+    return (tfVal)
+
+
+
 def generateTFIDF():
-    questDataset, answerDataset = pre.openFile("Dataset NLP2.xlsx")
-    print (len(questDataset))
+    questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
+    print("len dataset ",len(questDataset))
     terms = []
     questCorpus = []
     stringKata = ""
@@ -50,19 +80,26 @@ def generateTFIDF():
         questCorpus.append(stringKata.lower())
 
     for i in range(len(questCorpus)):
-        for j in range(len(terms)):
+        for j in range(len(getUniqueWords(terms))):
             tfidfVal.append(tf_idf(terms[j], questCorpus[i], questCorpus))
 
     tfidfVal = numpy.array(tfidfVal)
-    result = numpy.reshape(tfidfVal, (len(questCorpus), len(terms)))
+    # print("len tfidfval ",len(tfidfVal))
+    result = numpy.reshape(tfidfVal, (len(questCorpus), len(getUniqueWords(terms))))
 
     result = result.tolist()
+    # print("len row result ",len(result))
+    # print("len column result ",len(result[0]))
+
+    terms = getUniqueWords(terms)
+    # print("len long terms",len(terms))
     for i, x in enumerate(questCorpus):
         result[i].insert(0, x)
 
-    terms = getUniqueWords(terms)
     terms.insert(0, '')
     result.insert(0, terms)
+    # print()
+    # print(len(result))
     with open('tfidfres.csv', 'w', newline='') as fp:
         a = csv.writer(fp, delimiter=',')
         a.writerows(result)
@@ -97,6 +134,43 @@ def tf_idf(word, doc, list_of_docs):
     return (tf(word, doc) * idf(word, list_of_docs))
 
 
+def getTfVector(quest1, quest2, questdatasetParams):
+    tfq1 = []
+    tfq2 = []
+
+    terms,freqs = zip(*generateTF(questdatasetParams))
+
+    words1 = [(i[0]) for i in quest1]
+    words2 = [(i[0]) for i in quest2]
+
+    allWords = getUniqueWords(words1 + words2)
+    # print(terms)
+
+    for i in range(len(allWords)):
+        s = allWords[i];
+
+        if(s in words1):
+            if(s in terms):
+                index = terms.index(s)
+                tfq1.append(freqs[index])
+            else: tfq1.append(int(0))
+        else:tfq1.append(int(0))
+
+        if (s in words2):
+            if (s in terms):
+                index = terms.index(s)
+                tfq2.append(freqs[index])
+            else: tfq2.append(int(0))
+        else:tfq2.append(int(0))
+
+
+    print(allWords)
+    print(tfq1)
+    print(tfq2)
+
+    return tfq1, tfq2
+
+
 def getTfidfQuestion(quest1, quest2, indexes):
     tfidfq1 = []
     tfidfq2 = []
@@ -118,28 +192,28 @@ def getTfidfQuestion(quest1, quest2, indexes):
         s = allWords[i]
         # print(terms.index(s))
         if (s in words1):
-            if(s in terms):
+            if (s in terms):
                 termIndex = terms.index(s)
-                tfidfq1.append(float(corpus[indexes-1][termIndex]))
+                tfidfq1.append(float(corpus[indexes - 1][termIndex]))
                 # tfidfq1.append(int(1))
             else:
-                tfidfq1.append(float (0))
+                tfidfq1.append(float(0))
         else:
-            tfidfq1.append(float (0))
+            tfidfq1.append(float(0))
 
         if (s in words2):
             if (s in terms):
                 termIndex = terms.index(s)
-                tfidfq2.append(float(corpus[indexes-1][termIndex]))
+                tfidfq2.append(float(corpus[indexes - 1][termIndex]))
                 # tfidfq2.append(int(1))
 
             else:
-                tfidfq2.append(float (0))
+                tfidfq2.append(float(0))
         else:
-            tfidfq2.append(float (0))
+            tfidfq2.append(float(0))
 
     # print(questCorpus[indexes])
     print(allWords)
     print(tfidfq1)
     print(tfidfq2)
-    return tfidfq1,tfidfq2
+    return tfidfq1, tfidfq2

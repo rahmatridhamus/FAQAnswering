@@ -1,8 +1,11 @@
+from math import pow, sqrt
+
 import Preprocessing as pre
 import WordnetSimilarity as wn
 import numpy as np
 import TFIDF as tfidf
 import time
+
 
 def bipartite(Q1, Q2):
     temp = []
@@ -27,6 +30,39 @@ def cosineSimilarity(idf1, idf2):
         return a / b
 
 
+def chiSquareStat(tfVector1, tfVector2):
+    result = 0
+    sumX = getSum(tfVector1)
+    sumY = getSum(tfVector2)
+    h = sumX + sumY
+
+    locResX = 0
+    locResY = 0
+    for i in range(len(tfVector1)):
+        sqrtX = pow(tfVector1[i], 2)
+        sqrtY = pow(tfVector2[i], 2)
+
+        locResX += sqrtX/(sumX * (tfVector1[i] + tfVector2[i]))
+        locResY += sqrtY / (sumY * (tfVector1[i] + tfVector2[i]))
+
+    result = (h*(locResX+locResY))-h
+    return sqrt(result)
+
+
+def getSum(tfVector):
+    sumVal = 0
+    for i in range(len(tfVector)):
+        sumVal += tfVector[i]
+    return sumVal
+
+
+def chi2Cosine(idf1, idf2):
+    cosVal = cosineSimilarity(idf1, idf2)
+    chiVal = chiSquareStat(idf1, idf2)
+    a = 0.5
+    return (a * cosVal) + (1 - a) * chiVal
+
+
 def process(data):
     # start time count
     start_time = time.time()
@@ -42,14 +78,16 @@ def process(data):
     print(questFromUser, ' : ', preQuestFromUser)
 
     # dataset question processing
-    # questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
-    questDataset, answerDataset = pre.openFile("Dataset NLP2.xlsx")
+    questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
+    # questDataset, answerDataset = pre.openFile("Dataset NLP2.xlsx")
     prequestDataset, preAnswerDataset = [], []
 
     # Generating TFIDF to CSV
     # tfidf.generateTFIDF()
 
     # Start Checking
+    bestChi = 0
+    tempChi = ""
     for i in range(len(answerDataset)):
         # a = pre.preprocs(answerDataset[i])
         q = pre.preprocs(questDataset[i])
@@ -71,20 +109,27 @@ def process(data):
         scoreBipartite = bipartite(Q1, Q2)
 
         # statistic similarity processing, TF-IDF antar kata --> cosine similarity
-        tfidf1, tfidf2 = tfidf.getTfidfQuestion(preQuestFromUser, item, iteri)
+        tfidf1, tfidf2 = tfidf.getTfVector(preQuestFromUser, item, questDataset)
 
-        scoreCosine = cosineSimilarity(tfidf1, tfidf2)
+        # scoreCosine = cosineSimilarity(tfidf1, tfidf2)
+        scoreCosine = chi2Cosine(tfidf1, tfidf2)
 
         overall = a * scoreBipartite + (1 - a) * scoreCosine
         overallCosine = scoreCosine
         overallBipartite = scoreBipartite
 
         similiarity.append(overall)
-        print("Cosine: ", overallCosine)
+        if(bestChi<overallCosine):
+            bestChi = overallCosine
+            tempChi = ""+str(overallCosine)+", from "+str(item)
+        # print("Cosine: ", overallCosine)
+        print("Chisquare: ", overallCosine)
         print("Bipartite: ", overallBipartite)
         print("Overall: ", overall)
         print()
 
+
+    print("best Chi, ",tempChi)
     answer = answerDataset[similiarity.index(max(similiarity))]
     print('------------ Question ------------')
     print(data)
@@ -93,5 +138,6 @@ def process(data):
     print("--- %s seconds ---" % (time.time() - start_time))
     return answer
 
+
 # masukkan pertanyaan
-process("who are you ?")
+process("who are you?")
