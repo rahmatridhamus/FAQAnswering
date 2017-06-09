@@ -39,7 +39,7 @@ def turnTaggingToWordNet(tagging) :
 def preprocs(sent):
     words = word_tokenize(sent) #Tokenization
     words = [word.lower() for word in words if word.isalpha()] #Punctuation Removal
-    # words = [word for word in words if not word in stop_words] #Stopword Removal
+    words = [word for word in words if not word in stop_words] #Stopword Removal
     # words = [ps.stem(word) for word in words] #Stemming
     words = [lmtzr.lemmatize(word) for word in words]
     st = pos_tag(words)#POS Tagging

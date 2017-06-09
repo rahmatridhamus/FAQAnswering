@@ -61,10 +61,7 @@ def generateTF(questDatasetParams):
     tfVal = [(word, freq(word, terms)) for word in getUniqueWords(terms)]
     return (tfVal)
 
-
-
-def generateTFIDF():
-    questDataset, answerDataset = pre.openFile("Dataset Gabung.xlsx")
+def generateTFIDF(questDataset,answer):
     print("len dataset ",len(questDataset))
     terms = []
     questCorpus = []
@@ -100,10 +97,50 @@ def generateTFIDF():
     result.insert(0, terms)
     # print()
     # print(len(result))
-    with open('tfidfres.csv', 'w', newline='') as fp:
+    with open('tfidfres.csv', 'w', newline='', encoding="utf-8") as fp:
         a = csv.writer(fp, delimiter=',')
         a.writerows(result)
 
+def generateTFRealVectorize(questDataset):
+    print("len dataset ",len(questDataset))
+    terms = []
+    questCorpus = []
+    stringKata = ""
+    prequestDataset = []
+    tfidfVal = []
+    for i in range(len(questDataset)):
+        q = pre.preprocs(questDataset[i])
+        term, tag = zip(*q)
+        prequestDataset.append(term)
+        terms = list(chain(*prequestDataset))
+        stringKata = nltk.re.sub('[%s]' % nltk.re.escape(string.punctuation), '', questDataset[i])
+        questCorpus.append(stringKata.lower())
+
+    terms = getUniqueWords(terms)
+    for i in range(len(questCorpus)):
+        for j in range(len(getUniqueWords(terms))):
+            # tfidfVal.append(tf_idf(terms[j], questCorpus[i], questCorpus))
+            tfidfVal.append(freq(terms[j], questCorpus[i]))
+
+    tfidfVal = numpy.array(tfidfVal)
+    # print("len tfidfval ",len(tfidfVal))
+    result = numpy.reshape(tfidfVal, (len(questCorpus), len(getUniqueWords(terms))))
+
+    result = result.tolist()
+    # print("len row result ",len(result))
+    # print("len column result ",len(result[0]))
+
+    # print("len long terms",len(terms))
+    for i, x in enumerate(questCorpus):
+        result[i].insert(0, x)
+
+    terms.insert(0, '')
+    result.insert(0, terms)
+    # print()
+    # print(len(result))
+    with open('tfres.csv', 'w', newline='', encoding="utf-8") as fp:
+        a = csv.writer(fp, delimiter=',')
+        a.writerows(result)
 
 def freq(word, doc):
     return doc.count(word)
@@ -211,6 +248,54 @@ def getTfidfQuestion(quest1, quest2, indexes):
                 tfidfq2.append(float(0))
         else:
             tfidfq2.append(float(0))
+
+    # print(questCorpus[indexes])
+    print(allWords)
+    print(tfidfq1)
+    print(tfidfq2)
+    return tfidfq1, tfidfq2
+
+def getTfRealVectorizeQuestion(quest1, quest2, indexes):
+    tfidfq1 = []
+    tfidfq2 = []
+    with open('tfres.csv', 'r') as f:
+        reader = csv.reader(f)
+        data = list(reader)
+
+    terms = data[0]
+    corpus = data[1::]
+    questCorpus = [i[0] for i in data]
+
+    words1 = [(i[0]) for i in quest1]
+    words2 = [(i[0]) for i in quest2]
+
+    allWords = getUniqueWords(words1 + words2)
+    print(len(allWords))
+    # print(terms)
+
+    for i in range(len(allWords)):
+        s = allWords[i]
+        # print(terms.index(s))
+        if (s in words1):
+            if (s in terms):
+                termIndex = terms.index(s)
+                tfidfq1.append(int(corpus[indexes - 1][termIndex]))
+                # tfidfq1.append(int(1))
+            else:
+                tfidfq1.append(int(0))
+        else:
+            tfidfq1.append(int(0))
+
+        if (s in words2):
+            if (s in terms):
+                termIndex = terms.index(s)
+                tfidfq2.append(int(corpus[indexes - 1][termIndex]))
+                # tfidfq2.append(int(1))
+
+            else:
+                tfidfq2.append(int(0))
+        else:
+            tfidfq2.append(int(0))
 
     # print(questCorpus[indexes])
     print(allWords)
