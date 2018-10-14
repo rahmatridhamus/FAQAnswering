@@ -1,6 +1,6 @@
 import math
 
-import Preprocessing as pre
+from src import preprocessing as pre
 import nltk
 import string
 import numpy

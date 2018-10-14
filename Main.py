@@ -1,10 +1,7 @@
 from math import pow, sqrt
 
-import Preprocessing as pre
-import WordnetSimilarity as wn
-import DatasetConfig as dc
+from src import dataset_config as dc, preprocessing as pre, tfidf as tfidf, wordnet_similiarity as wn
 import numpy as np
-import TFIDF as tfidf
 import time
 
 
